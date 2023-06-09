@@ -30,11 +30,13 @@ async def process_name(message: Message, state: FSMContext):
 @dp.message_handler(state="q2")
 async def process_age(message: Message, state: FSMContext):
     age = message.text
-    if age.isdigit():
+    if age.isdigit() and age >= 18:
         await state.update_data({"age": age})
         await state.set_state("echo")
-        await bot.send_message(chat_id=message.chat.id)
+        await bot.send_message(chat_id=message.chat.id, text=f'Hello {name}, {age}')
         await message.answer("Now I'm echo-bot")
+    elif age.isdigit() and age < 18:
+        await message.answer("you are under 18 years old")
     else:
         await message.answer("This is not number. Try again")
 
