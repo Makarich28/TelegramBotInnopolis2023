@@ -39,6 +39,7 @@ async def get_weather(message: types.Message):
                f'\nВлажность: {data["main"]["humidity"]} %'
         await bot.send_message(message.chat.id, text=text)
 
+print(123)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
