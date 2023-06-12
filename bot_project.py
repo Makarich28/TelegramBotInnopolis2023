@@ -42,7 +42,7 @@ async def get_weather(message: types.Message):
     else:
         weather = data["weather"][0]["description"]
         if weather == "ясно":
-
+            emodji_weather = code_to_smile['ясно']
         text = f'<strong>Погода {city}</strong>'\
             f'\n\n<i>Населенный пункт: {city}\nСтрана: {data["sys"]["country"]}</i>\n\n<strong>Погода</strong>: <b>{data["weather"][0]["description"]}</b>' \
                f'\n\n<strong>Ощущается как {data["main"]["feels_like"]}°C</strong>' \
@@ -66,7 +66,6 @@ if __name__ == '__main__':
 # Скорость ветра
 # Давление
 # Влажность
-
 
 # пасмурно
 # ясно
