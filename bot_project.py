@@ -14,6 +14,15 @@ storage = MemoryStorage()
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
 
+code_to_smile = {
+"ясно": "\U00002600",
+"небольшая облачность": "\U00002601",
+"дождь": "\U00002614",
+"небольшой дождь": "\U00002614",
+"Thunderstorm": "\U000026A1",
+"Snow": "\U0001F328",
+"Mist": "\U0001F32B"
+}
 
 @dp.message_handler(commands=['start'])
 async def start(message):
@@ -31,15 +40,19 @@ async def get_weather(message: types.Message):
     if int(str(response)[11:-2]) == 404:
         await bot.send_message(message.chat.id, "Не обнаружено населенного пункта")
     else:
-        text = f'Населенный пункт: {city}\nСтрана: {data["sys"]["country"]}\nПогода: {data["weather"][0]["description"]}' \
-               f'\nМинимальная температура: {data["main"]["temp_min"]}°C;' \
-               f'\nМаксимальная температура: {data["main"]["temp_max"]}°C;\nОщущается как {data["main"]["feels_like"]}°C' \
-               f'Скорость ветра: ' \
-               f'\nДавление: {data["main"]["pressure"]} мм.рт.ст' \
-               f'\nВлажность: {data["main"]["humidity"]} %'
-        await bot.send_message(message.chat.id, text=text)
+        weather = data["weather"][0]["description"]
+        if weather == "ясно":
 
-print(1234567890)
+        text = f'<strong>Погода {city}</strong>'\
+            f'\n\n<i>Населенный пункт: {city}\nСтрана: {data["sys"]["country"]}</i>\n\n<strong>Погода</strong>: <b>{data["weather"][0]["description"]}</b>' \
+               f'\n\n<strong>Ощущается как {data["main"]["feels_like"]}°C</strong>' \
+               f'\nМинимальная температура: {data["main"]["temp_min"]}°C' \
+               f'\nМаксимальная температура: {data["main"]["temp_max"]}°C' \
+               f'\n\nСкорость ветра:  {data["wind"]["speed"]} м/с' \
+               f'\n\nДавление:  {data["main"]["pressure"]} мм.рт.ст' \
+               f'\n\nВлажность:  {data["main"]["humidity"]} %'
+        await bot.send_message(message.chat.id, text=text, parse_mode='HTML')
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
@@ -55,12 +68,10 @@ if __name__ == '__main__':
 # Влажность
 
 
-# code_to_smile = {
-# "Clear": "Ясно \U00002600",
-# "Clouds": "Облачно \U00002601",
-# "Rain": "Дождь \U00002614",
-# "Drizzle": "Дождь \U00002614",
-# "Thunderstorm": "Гроза \U000026A1",
-# "Snow": "Снег \U0001F328",
-# "Mist": "Туман \U0001F32B"
-# }
+# пасмурно
+# ясно
+# небольшая облачность
+# небольшой снег
+# облачно с прояснениями
+#снег
+#дождь
