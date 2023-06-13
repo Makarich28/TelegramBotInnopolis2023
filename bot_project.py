@@ -100,13 +100,3 @@ async def start_i1(callback_query: types.CallbackQuery, state):
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
-
-# Нас. Пункт
-# Страна
-# Погода (эмодзи)
-# Мин. Температура
-# Макс. Температура
-# Ощущается
-# Скорость ветра
-# Давление
-# Влажность
