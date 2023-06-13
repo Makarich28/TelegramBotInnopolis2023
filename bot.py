@@ -6,6 +6,7 @@ from env import TOKEN
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 
+
 logging.basicConfig(level=logging.INFO)
 
 storage = MemoryStorage()
