@@ -6,9 +6,9 @@ After=network.target
 User=makarich28
 Group=makarich28
 
-WorkingDirectory = /home/makarich28/TelegramBotInnpolis2023/
+WorkingDirectory = /home/makarich28/TelegramBotInnopolis2023/
 Environment="PYTHONPATH=/home/makarich28/TelegramBotInnpolis2023/"
-ExecStart=/home/makarich28/TelegramBotInnpolis2023/.venv/bin/python /home/makarich28/TelegramBotInnpolis2023/bot_project
+ExecStart=/home/makarich28/TelegramBotInnopolis2023/.venv/bin/python /home/makarich28/TelegramBotInnopolis2023/bot_project
 
 [Install]
 WantedBy=multi-user.target
