@@ -73,15 +73,8 @@ async def get_weather(message: types.Message, state):
                f'\n\nДавление:  {data["main"]["pressure"]} мм.рт.ст' \
                f'\n\nВлажность:  {data["main"]["humidity"]} %'
         await bot.send_message(message.chat.id, text=text, parse_mode='HTML')
-        if weather == "ясно":
-            photo = InputFile("погода рисунки\ясная погода.jpg")
-            await bot.send_photo(chat_id=message.chat.id, photo=photo)
-        elif weather =="дождь":
-            photo = InputFile("погода рисунки\дождь.jpg")
-            await bot.send_photo(chat_id=message.chat.id, photo=photo)
-        else:
-            photo = InputFile("Коты\cat8.jpg")
-            await bot.send_photo(chat_id=message.chat.id, photo=photo)
+        photo = InputFile(f"погода рисунки/{weather}.jpg")
+        await bot.send_photo(chat_id=message.chat.id, photo=photo)
         # await state.set_state("start")
 
 
