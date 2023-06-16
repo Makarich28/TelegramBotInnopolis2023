@@ -181,19 +181,23 @@ async def weather(message, state):
 
             if data_state["music"]:
                 if weather == "дождь" or weather == "небольшой дождь" or weather == "пасмурно":
-                    await bot.send_message(message.chat.id, "<Тут_будет_ссылка_на_плейлист_с_песнями_про_дождь>")
+                    await bot.send_message(message.chat.id,
+                                           "https://share.boom.ru/playlist/866619289/?share_auth=022055d13c2904c4ef821a648b5fb000")
                 elif weather == "переменная облачность" or weather == "облачно с прояснениями" or weather == "небольшая облачность":
                     await bot.send_message(message.chat.id,
-                                           "<Тут_будет_ссылка_на_плейлист_с_песнями_про_облачную_погоду")
+                                           "https://share.boom.ru/playlist/850988629/?share_auth=02817f4921900e272c821a648b6dc000")
                 elif weather == "ясно":
                     await bot.send_message(message.chat.id,
-                                           "<Тут_будет_ссылка_на_плейлист_с_песнями_про_солнечную_погоду")
+                                           "https://share.boom.ru/playlist/850990141/?share_auth=022eb40071c1771988821a648b6dc000")
                 elif weather == "гроза":
-                    await bot.send_message(message.chat.id, "<Тут_будет_ссылка_на_плейлист_с_песнями_про_грозу")
+                    await bot.send_message(message.chat.id,
+                                           "https://share.boom.ru/playlist/850992229/?share_auth=02f4b3e84743e5fe13821a648b6dc000")
                 elif weather == "снег":
-                    await bot.send_message(message.chat.id, "<Тут_будет_ссылка_на_плейлист_с_песнями_про_снег")
+                    await bot.send_message(message.chat.id,
+                                           "https://share.boom.ru/playlist/850993597/?share_auth=026933fbb2a60895b5821a648b6dc000")
                 elif weather == "туман":
-                    await bot.send_message(message.chat.id, "<Тут_будет_ссылка_на_плейлист_с_песнями_про_туман")
+                    await bot.send_message(message.chat.id,
+                                           "https://share.boom.ru/playlist/850994821/?share_auth=022005a949d2effa9c821a648b6dc000")
     else:
         coord = requests.get('https://ipinfo.io/json')
         coord = coord.json()
