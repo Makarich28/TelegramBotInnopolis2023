@@ -17,6 +17,10 @@ start_i1 = InlineKeyboardButton("Write it yourself", callback_data='start_i1')
 start_i2 = InlineKeyboardButton("Geolocation", callback_data='start_i2')
 keyboard_location_inline = InlineKeyboardMarkup().insert(start_i1).insert(start_i2)
 
+geo_yes = KeyboardButton("Yes")
+geo_no = KeyboardButton("No")
+keyboard_geo = ReplyKeyboardMarkup().insert(geo_yes).insert(geo_no)
+
 image_button_i1 = InlineKeyboardButton("Yes 👍", callback_data='image_button_i1')
 image_button_i2 = InlineKeyboardButton("No 👎", callback_data='image_button_i2')
 keyboard_image_inline = InlineKeyboardMarkup().insert(image_button_i1).insert(image_button_i2)
@@ -266,7 +270,7 @@ async def weather(message, state):
                                        "https://share.boom.ru/playlist/850994821/?share_auth=022005a949d2effa9c821a648b6dc000")
 
 @dp.message_handler(state="location_point")
-async def get_weather(message: types.Message, state):
+async def get_weather_location_point(message: types.Message, state):
     city = message.text.lower()
     data_state = await state.get_data()
     translator = Translator(to_lang=data_state["lang"])
@@ -333,72 +337,77 @@ async def get_weather(message: types.Message, state):
                                        "https://share.boom.ru/playlist/850994821/?share_auth=022005a949d2effa9c821a648b6dc000")
 
 
-@dp.callback_query_handler(lambda callback: callback.data == "start_i2", state='location')
-async def start_i2(callback_query: types.CallbackQuery, state):
-    await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, 'Getting your geolocation...')
-    coord = requests.get('https://ipinfo.io/json')
-    coord = coord.json()
-    await state.update_data({"place": tuple((coord['loc'].split(',')))})
-    coord = tuple((coord["loc"]).split(','))
-    lat = coord[0]
-    lon = coord[1]
-    await bot.send_message(callback_query.from_user.id, 'Geolocation received.\n'
-                                                        'I will remember your location, you can change it later')
-    response = requests.get(
-        f'https://api.openweathermap.org/data/2.5/weather?'
-        f'lat={lat}&lon={lon}&'
-        f'appid=a009c9ca842efc851186d74154eba196&units=metric')
-    data = response.json()
-    response_emodji = requests.get(
-        f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=a009c9ca842efc851186d74154eba196&lang=ru&units=metric")
-    data_emodji = response_emodji.json()
-    weather = data_emodji["weather"][0]["description"]
-    if weather in code_to_smile:
-        emodji_weather = code_to_smile[weather]
-    else:
-        emodji_weather = ""
-    text = f'<strong>Weather {lat}, {lon}</strong>' \
-           f'\n\n<i>Locality: {lat}, {lon}</i>\n\n<strong>' \
-           f'Weather</strong>: <b>{data["weather"][0]["description"]}{emodji_weather}</b>' \
-           f'\n\n<strong>Temperature: {data["main"]["temp"]}</strong>' \
-           f'\n<strong>Feels like {data["main"]["feels_like"]}°C</strong>\n\n' \
-           f'Wind speed:  {data["wind"]["speed"]} m/s' \
-           f'\n\nPressure:  {data["main"]["pressure"]} mm Hg' \
-           f'\n\nHumidity:  {data["main"]["humidity"]} %'
+@dp.message_handler(state="geolocation")
+async def get_weather_geolocation(message, state):
     data_state = await state.get_data()
     translator = Translator(to_lang=data_state["lang"])
-    text = translator.translate(text)
-    await bot.send_location(callback_query.from_user.id, latitude=lat, longitude=lon)
-    await bot.send_message(callback_query.from_user.id, text=text, parse_mode='HTML')
-    if data_state["image"]:
+    if message.text=="Yes":
+        coord = requests.get('https://ipinfo.io/json')
+        coord = coord.json()
+        await state.update_data({"place": tuple((coord['loc'].split(',')))})
+        coord = tuple((coord["loc"]).split(','))
+        lat = coord[0]
+        lon = coord[1]
+        await bot.send_message(data_state["chat_id"], 'Geolocation received.\n'
+                                                            'I will remember your location, you can change it later', reply_markup=ReplyKeyboardRemove())
         response = requests.get(
-            f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=a009c9ca842efc851186d74154eba196&lang=ru&units=metric")
+            f'https://api.openweathermap.org/data/2.5/weather?'
+            f'lat={lat}&lon={lon}&'
+            f'appid=a009c9ca842efc851186d74154eba196&units=metric')
         data = response.json()
-        weather = data['weather'][0]['description']
-        if weather == "переменная облачность":
-            photo = InputFile(f"погода рисунки/переменная_облачность.jpg")
-        elif weather == "облачно с прояснениями":
-            photo = InputFile(f"погода рисунки/облачно_с_прояснениями.jpg")
-        elif weather == "небольшая облачность":
-            photo = InputFile(f"погода рисунки/небольшая_облачность.jpg")
+        response_emodji = requests.get(
+            f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=a009c9ca842efc851186d74154eba196&lang=ru&units=metric")
+        data_emodji = response_emodji.json()
+        weather = data_emodji["weather"][0]["description"]
+        if weather in code_to_smile:
+            emodji_weather = code_to_smile[weather]
         else:
-            photo = InputFile(f"погода рисунки/{data['weather'][0]['description']}.jpg")
-        await bot.send_photo(chat_id=callback_query.from_user.id, photo=photo)
+            emodji_weather = ""
+        text = f'<strong>Weather {lat}, {lon}</strong>' \
+               f'\n\n<i>Locality: {lat}, {lon}</i>\n\n<strong>' \
+               f'Weather</strong>: <b>{data["weather"][0]["description"]}{emodji_weather}</b>' \
+               f'\n\n<strong>Temperature: {data["main"]["temp"]}</strong>' \
+               f'\n<strong>Feels like {data["main"]["feels_like"]}°C</strong>\n\n' \
+               f'Wind speed:  {data["wind"]["speed"]} m/s' \
+               f'\n\nPressure:  {data["main"]["pressure"]} mm Hg' \
+               f'\n\nHumidity:  {data["main"]["humidity"]} %'
+        data_state = await state.get_data()
+        text = translator.translate(text)
+        await bot.send_location(data_state["chat_id"], latitude=lat, longitude=lon)
+        await bot.send_message(data_state["chat_id"], text=text, parse_mode='HTML')
+        if data_state["image"]:
+            response = requests.get(
+                f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=a009c9ca842efc851186d74154eba196&lang=ru&units=metric")
+            data = response.json()
+            weather = data['weather'][0]['description']
+            if weather == "переменная облачность":
+                photo = InputFile(f"погода рисунки/переменная_облачность.jpg")
+            elif weather == "облачно с прояснениями":
+                photo = InputFile(f"погода рисунки/облачно_с_прояснениями.jpg")
+            elif weather == "небольшая облачность":
+                photo = InputFile(f"погода рисунки/небольшая_облачность.jpg")
+            else:
+                photo = InputFile(f"погода рисунки/{data['weather'][0]['description']}.jpg")
+            await bot.send_photo(chat_id=data_state["chat_id"], photo=photo)
 
-    if data_state["music"]:
-        if weather == "дождь" or weather == "небольшой дождь" or weather == "пасмурно":
-            await bot.send_message(callback_query.from_user.id, "https://share.boom.ru/playlist/866619289/?share_auth=022055d13c2904c4ef821a648b5fb000")
-        elif weather == "переменная облачность" or weather == "облачно с прояснениями" or weather == "небольшая облачность":
-            await bot.send_message(callback_query.from_user.id, "https://share.boom.ru/playlist/850988629/?share_auth=02817f4921900e272c821a648b6dc000")
-        elif weather == "ясно":
-            await bot.send_message(callback_query.from_user.id, "https://share.boom.ru/playlist/850990141/?share_auth=022eb40071c1771988821a648b6dc000")
-        elif weather == "гроза":
-            await bot.send_message(callback_query.from_user.id, "https://share.boom.ru/playlist/850992229/?share_auth=02f4b3e84743e5fe13821a648b6dc000")
-        elif weather == "снег":
-            await bot.send_message(callback_query.from_user.id, "https://share.boom.ru/playlist/850993597/?share_auth=026933fbb2a60895b5821a648b6dc000")
-        elif weather == "туман":
-            await bot.send_message(callback_query.from_user.id, "https://share.boom.ru/playlist/850994821/?share_auth=022005a949d2effa9c821a648b6dc000")
+        if data_state["music"]:
+            if weather == "дождь" or weather == "небольшой дождь" or weather == "пасмурно":
+                await bot.send_message(data_state["chat_id"], "https://share.boom.ru/playlist/866619289/?share_auth=022055d13c2904c4ef821a648b5fb000")
+            elif weather == "переменная облачность" or weather == "облачно с прояснениями" or weather == "небольшая облачность":
+                await bot.send_message(data_state["chat_id"], "https://share.boom.ru/playlist/850988629/?share_auth=02817f4921900e272c821a648b6dc000")
+            elif weather == "ясно":
+                await bot.send_message(data_state["chat_id"], "https://share.boom.ru/playlist/850990141/?share_auth=022eb40071c1771988821a648b6dc000")
+            elif weather == "гроза":
+                await bot.send_message(data_state["chat_id"], "https://share.boom.ru/playlist/850992229/?share_auth=02f4b3e84743e5fe13821a648b6dc000")
+            elif weather == "снег":
+                await bot.send_message(data_state["chat_id"], "https://share.boom.ru/playlist/850993597/?share_auth=026933fbb2a60895b5821a648b6dc000")
+            elif weather == "туман":
+                await bot.send_message(data_state["chat_id"], "https://share.boom.ru/playlist/850994821/?share_auth=022005a949d2effa9c821a648b6dc000")
+    elif message.text == "No":
+        await bot.send_message(message.chat.id, f'{translator.translate("You refused to send geolocation. To select a location, type")} /place',
+                               reply_markup=ReplyKeyboardRemove())
+    else:
+        await bot.send_message(message.chat.id, translator.translate("Choose your answer from the following"))
 
 
 @dp.callback_query_handler(lambda callback: callback.data == "start_i1", state='location')
@@ -411,6 +420,15 @@ async def start_i1(callback_query: types.CallbackQuery, state):
                                "Write the name of any locality and I'll tell you what the weather is like there!\n"
                                " I'll remember your location, then you can change it later."))
     await state.set_state("location_point")
+
+
+@dp.callback_query_handler(lambda callback: callback.data == "start_i2", state='location')
+async def start_i2(callback_query: types.CallbackQuery, state):
+    await bot.answer_callback_query(callback_query.id)
+    data_state = await state.get_data()
+    translator = Translator(to_lang=data_state["lang"])
+    await state.set_state("geolocation")
+    await bot.send_message(callback_query.from_user.id, translator.translate('Can I get your geolocation?'), reply_markup=keyboard_geo)
 
 
 @dp.callback_query_handler(lambda callback: callback.data == "image_button_i1", state='image')
@@ -446,7 +464,7 @@ async def start_i1(callback_query: types.CallbackQuery, state):
     translator = Translator(to_lang=data_state["lang"])
     await bot.send_message(data_state["chat_id"],
                            translator.translate("You have agreed to receive a playlist of music"))
-    await state.update_data({"music": "True"})
+    await state.update_data({"music": True})
     await bot.send_message(data_state["chat_id"],
                            translator.translate("To find out the weather, send geolocation or text where you are"),
                            reply_markup=keyboard_location_inline)
@@ -460,7 +478,7 @@ async def start_i1(callback_query: types.CallbackQuery, state):
     translator = Translator(to_lang=data_state["lang"])
     await bot.send_message(data_state["chat_id"],
                            translator.translate("You did not agreed to receive a playlist of music"))
-    await state.update_data({"music": "False"})
+    await state.update_data({"music": False})
     await bot.send_message(data_state["chat_id"],
                            translator.translate("To find out the weather, send geolocation or text where you are"),
                            reply_markup=keyboard_location_inline)
